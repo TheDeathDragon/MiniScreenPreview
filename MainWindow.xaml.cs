@@ -4,6 +4,7 @@ using MiniScreenPreview.Services;
 using MiniScreenPreview.ViewModels;
 using MiniScreenPreview.Windows;
 using System.Globalization;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -64,6 +65,51 @@ namespace MiniScreenPreview
             {
                 await LoadProject(lastOpenedPath);
             }
+            
+            // 订阅ImageResources集合变更和Layer属性变更
+            _viewModel.ImageResources.CollectionChanged += OnImageResourcesCollectionChanged;
+            foreach (var image in _viewModel.ImageResources)
+            {
+                image.PropertyChanged += OnImagePropertyChanged;
+            }
+        }
+
+        private void OnImageResourcesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            // 当添加新图像时，订阅其Layer属性变更
+            if (e.NewItems != null)
+            {
+                foreach (ImageResource newImage in e.NewItems)
+                {
+                    newImage.PropertyChanged += OnImagePropertyChanged;
+                }
+            }
+
+            // 当移除图像时，取消订阅
+            if (e.OldItems != null)
+            {
+                foreach (ImageResource oldImage in e.OldItems)
+                {
+                    oldImage.PropertyChanged -= OnImagePropertyChanged;
+                }
+            }
+
+            RefreshSortedView();
+        }
+
+        private void OnImagePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // 当Layer属性变更时，刷新排序视图
+            if (e.PropertyName == nameof(ImageResource.Layer))
+            {
+                RefreshSortedView();
+            }
+        }
+
+        private void RefreshSortedView()
+        {
+            var sortedView = (CollectionViewSource)FindResource("SortedImageResources");
+            sortedView.View?.Refresh();
         }
 
         private async void OnWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e)

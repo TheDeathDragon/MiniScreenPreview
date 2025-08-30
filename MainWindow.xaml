@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MiniScreenPreview"
         xmlns:controls="clr-namespace:MiniScreenPreview.Controls"
+        xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="800" Width="1200"
         WindowStartupLocation="CenterScreen">
@@ -18,6 +19,11 @@
     </Window.InputBindings>
     <Window.Resources>
         <local:StringEqualityConverter x:Key="StringEqualityConverter"/>
+        <CollectionViewSource x:Key="SortedImageResources" Source="{Binding ImageResources}">
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="Layer" Direction="Ascending"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
         <Style x:Key="PropertyTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="26"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -174,7 +180,7 @@
                 <TextBlock Grid.Row="0" Text="Image Resources" Style="{StaticResource PropertySectionStyle}" Margin="12,12,12,8"/>
 
                 <ListBox Grid.Row="1" x:Name="ImageListBox" 
-                         ItemsSource="{Binding ImageResources}"
+                         ItemsSource="{Binding Source={StaticResource SortedImageResources}}"
                          SelectedItem="{Binding SelectedImageResource}"
                          Margin="10"
                          AllowDrop="True"
