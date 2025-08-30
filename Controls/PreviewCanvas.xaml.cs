@@ -278,8 +278,8 @@ namespace MiniScreenPreview.Controls
                 var deltaX = currentPosition.X - _lastPosition.X;
                 var deltaY = currentPosition.Y - _lastPosition.Y;
 
-                var newX = Math.Max(0, Math.Min(MainCanvas.Width - _draggedImage.ActualWidth, imageResource.X + deltaX));
-                var newY = Math.Max(0, Math.Min(MainCanvas.Height - _draggedImage.ActualHeight, imageResource.Y + deltaY));
+                var newX = imageResource.X + deltaX;
+                var newY = imageResource.Y + deltaY;
 
                 imageResource.X = newX;
                 imageResource.Y = newY;
@@ -329,16 +329,16 @@ namespace MiniScreenPreview.Controls
                 switch (e.Key)
                 {
                     case Key.Left:
-                        _viewModel.SelectedImageResource.X = Math.Max(0, _viewModel.SelectedImageResource.X - moveStep);
+                        _viewModel.SelectedImageResource.X -= moveStep;
                         break;
                     case Key.Right:
-                        _viewModel.SelectedImageResource.X = Math.Min(MainCanvas.Width, _viewModel.SelectedImageResource.X + moveStep);
+                        _viewModel.SelectedImageResource.X += moveStep;
                         break;
                     case Key.Up:
-                        _viewModel.SelectedImageResource.Y = Math.Max(0, _viewModel.SelectedImageResource.Y - moveStep);
+                        _viewModel.SelectedImageResource.Y -= moveStep;
                         break;
                     case Key.Down:
-                        _viewModel.SelectedImageResource.Y = Math.Min(MainCanvas.Height, _viewModel.SelectedImageResource.Y + moveStep);
+                        _viewModel.SelectedImageResource.Y += moveStep;
                         break;
                     case Key.Delete:
                         if (_viewModel.RemoveImageCommand.CanExecute(null))

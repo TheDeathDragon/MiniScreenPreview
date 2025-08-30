@@ -275,11 +275,11 @@
                     <TextBlock Text="Position X:" Style="{StaticResource PropertyLabelStyle}" Margin="0,12,0,4"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <controls:NumericTextBox Value="{Binding SelectedImageResource.X}" 
-                                                Step="1" Minimum="0" Maximum="{Binding PreviewWidth}"
+                                                Step="1" Minimum="-360" Maximum="360"
                                                 Style="{StaticResource PropertyNumericTextBoxStyle}"
                                                 Width="70" Margin="0,0,8,0"/>
                         <Slider Value="{Binding SelectedImageResource.X}" 
-                                Minimum="0" Maximum="{Binding PreviewWidth}" 
+                                Minimum="-360" Maximum="360" 
                                 Style="{StaticResource PropertySliderStyle}"
                                 Width="140" SmallChange="1" LargeChange="10"/>
                     </StackPanel>
@@ -287,11 +287,11 @@
                     <TextBlock Text="Position Y:" Style="{StaticResource PropertyLabelStyle}" Margin="0,0,0,4"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <controls:NumericTextBox Value="{Binding SelectedImageResource.Y}" 
-                                                Step="1" Minimum="0" Maximum="{Binding PreviewHeight}"
+                                                Step="1" Minimum="-360" Maximum="360"
                                                 Style="{StaticResource PropertyNumericTextBoxStyle}"
                                                 Width="70" Margin="0,0,8,0"/>
                         <Slider Value="{Binding SelectedImageResource.Y}" 
-                                Minimum="0" Maximum="{Binding PreviewHeight}" 
+                                Minimum="-360" Maximum="360" 
                                 Style="{StaticResource PropertySliderStyle}"
                                 Width="140" SmallChange="1" LargeChange="10"/>
                     </StackPanel>
