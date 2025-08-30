@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace MiniScreenPreview
 {
@@ -19,6 +20,14 @@ namespace MiniScreenPreview
         private MainViewModel _viewModel;
         private DataService _dataService;
 
+        // Static commands for keyboard shortcuts
+        public static readonly RoutedCommand NewProjectCommand = new RoutedCommand();
+        public static readonly RoutedCommand OpenProjectCommand = new RoutedCommand();
+        public static readonly RoutedCommand SaveProjectCommand = new RoutedCommand();
+        public static readonly RoutedCommand SaveProjectAsCommand = new RoutedCommand();
+        public static readonly RoutedCommand ExitCommand = new RoutedCommand();
+        public static readonly RoutedCommand ShowAllInfoCommand = new RoutedCommand();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -28,6 +37,14 @@ namespace MiniScreenPreview
 
             Loaded += OnWindowLoaded;
             Closing += OnWindowClosing;
+
+            // Bind keyboard shortcuts to command handlers
+            CommandBindings.Add(new CommandBinding(NewProjectCommand, (s, e) => NewProject_Click(s, e)));
+            CommandBindings.Add(new CommandBinding(OpenProjectCommand, (s, e) => OpenProject_Click(s, e)));
+            CommandBindings.Add(new CommandBinding(SaveProjectCommand, (s, e) => SaveProject_Click(s, e)));
+            CommandBindings.Add(new CommandBinding(SaveProjectAsCommand, (s, e) => SaveProjectAs_Click(s, e)));
+            CommandBindings.Add(new CommandBinding(ExitCommand, (s, e) => Exit_Click(s, e)));
+            CommandBindings.Add(new CommandBinding(ShowAllInfoCommand, (s, e) => ShowAllInfo_Click(s, e)));
         }
 
         private void MoveLayerUp_Click(object sender, RoutedEventArgs e)

@@ -8,6 +8,14 @@
         mc:Ignorable="d"
         Title="{Binding WindowTitle}" Height="800" Width="1200"
         WindowStartupLocation="CenterScreen">
+    <Window.InputBindings>
+        <KeyBinding Gesture="Ctrl+N" Command="{x:Static local:MainWindow.NewProjectCommand}"/>
+        <KeyBinding Gesture="Ctrl+O" Command="{x:Static local:MainWindow.OpenProjectCommand}"/>
+        <KeyBinding Gesture="Ctrl+S" Command="{x:Static local:MainWindow.SaveProjectCommand}"/>
+        <KeyBinding Gesture="Ctrl+Shift+S" Command="{x:Static local:MainWindow.SaveProjectAsCommand}"/>
+        <KeyBinding Gesture="Alt+F4" Command="{x:Static local:MainWindow.ExitCommand}"/>
+        <KeyBinding Gesture="F12" Command="{x:Static local:MainWindow.ShowAllInfoCommand}"/>
+    </Window.InputBindings>
     <Window.Resources>
         <local:StringEqualityConverter x:Key="StringEqualityConverter"/>
         <Style x:Key="PropertyTextBoxStyle" TargetType="TextBox">
