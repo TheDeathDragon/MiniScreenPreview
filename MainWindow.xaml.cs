@@ -1,8 +1,10 @@
 ﻿using Microsoft.Win32;
+using MiniScreenPreview.Models;
 using MiniScreenPreview.Services;
 using MiniScreenPreview.ViewModels;
 using MiniScreenPreview.Windows;
 using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -208,10 +210,6 @@ namespace MiniScreenPreview
                 MessageBoxImage.Information);
         }
 
-        private void ToggleSelectionBorder_Click(object sender, RoutedEventArgs e)
-        {
-            _viewModel.ShowSelectionBorder = !_viewModel.ShowSelectionBorder;
-        }
 
         private void SetBorderColor_Click(object sender, RoutedEventArgs e)
         {
@@ -219,6 +217,77 @@ namespace MiniScreenPreview
             {
                 _viewModel.SelectionBorderColor = color;
             }
+        }
+
+        #endregion
+
+        #region Drag and Drop
+
+        private void ImageListBox_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files.Any(IsImageFile))
+                {
+                    e.Effects = DragDropEffects.Copy;
+                }
+                else
+                {
+                    e.Effects = DragDropEffects.None;
+                }
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        private void ImageListBox_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files.Any(IsImageFile))
+                {
+                    e.Effects = DragDropEffects.Copy;
+                }
+                else
+                {
+                    e.Effects = DragDropEffects.None;
+                }
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+        }
+
+        private void ImageListBox_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                var imageFiles = files.Where(IsImageFile).ToArray();
+                
+                foreach (var fileName in imageFiles)
+                {
+                    var imageResource = new ImageResource
+                    {
+                        Name = Path.GetFileNameWithoutExtension(fileName),
+                        FilePath = fileName,
+                        Layer = _viewModel.ImageResources.Count
+                    };
+                    _viewModel.ImageResources.Add(imageResource);
+                }
+            }
+        }
+
+        private bool IsImageFile(string filePath)
+        {
+            var extension = Path.GetExtension(filePath).ToLower();
+            return extension == ".png" || extension == ".jpg" || extension == ".jpeg" || 
+                   extension == ".bmp" || extension == ".gif" || extension == ".tiff";
         }
 
         #endregion
@@ -286,6 +355,7 @@ namespace MiniScreenPreview
     {
         public static IValueConverter IsNotNull { get; } = new IsNotNullConverter();
         public static IValueConverter StringEquality { get; } = new StringEqualityConverter();
+        public static IValueConverter Inverted { get; } = new InvertedBooleanConverter();
     }
 
     public class IsNotNullConverter : IValueConverter
@@ -315,6 +385,27 @@ namespace MiniScreenPreview
                 return parameter.ToString() ?? string.Empty;
             }
             return Binding.DoNothing;
+        }
+    }
+
+    public class InvertedBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return !boolValue;
+            }
+            return false;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return !boolValue;
+            }
+            return false;
         }
     }
 }

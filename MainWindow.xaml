@@ -98,12 +98,18 @@
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="Show Selection _Border" IsCheckable="True" 
-                          IsChecked="{Binding ShowSelectionBorder}" 
-                          Click="ToggleSelectionBorder_Click">
+                          IsChecked="{Binding ShowSelectionBorder}">
                     <MenuItem.Icon>
-                        <TextBlock Text="🔲" FontSize="12"/>
+                        <Border Width="12" Height="12" BorderThickness="1" BorderBrush="Gray" Background="Transparent"/>
                     </MenuItem.Icon>
                 </MenuItem>
+                <MenuItem Header="No Selection _Border" IsCheckable="True" 
+                          IsChecked="{Binding ShowSelectionBorder, Converter={x:Static local:BooleanConverter.Inverted}}">
+                    <MenuItem.Icon>
+                        <Border Width="12" Height="12" BorderThickness="1" BorderBrush="Gray" Background="Transparent"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
                 <MenuItem Header="Border _Color">
                     <MenuItem.Icon>
                         <TextBlock Text="🎨" FontSize="12"/>
@@ -162,7 +168,11 @@
                 <ListBox Grid.Row="1" x:Name="ImageListBox" 
                          ItemsSource="{Binding ImageResources}"
                          SelectedItem="{Binding SelectedImageResource}"
-                         Margin="10">
+                         Margin="10"
+                         AllowDrop="True"
+                         DragEnter="ImageListBox_DragEnter"
+                         DragOver="ImageListBox_DragOver"
+                         Drop="ImageListBox_Drop">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid>

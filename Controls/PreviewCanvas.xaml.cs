@@ -1,6 +1,7 @@
 using MiniScreenPreview.Models;
 using MiniScreenPreview.ViewModels;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,6 +15,7 @@ namespace MiniScreenPreview.Controls
         private bool _isDragging;
         private Point _lastPosition;
         private Image? _draggedImage;
+        private readonly Dictionary<ImageResource, PropertyChangedEventHandler> _propertyChangedHandlers = new();
 
         public PreviewCanvas()
         {
@@ -29,6 +31,13 @@ namespace MiniScreenPreview.Controls
             {
                 _viewModel.ImageResources.CollectionChanged += OnImageResourcesChanged;
                 _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+                
+                // Subscribe to all existing images' property changes
+                foreach (var imageResource in _viewModel.ImageResources)
+                {
+                    imageResource.PropertyChanged += OnAnyImageResourcePropertyChanged;
+                }
+                
                 UpdateCanvas();
             }
         }
@@ -45,13 +54,42 @@ namespace MiniScreenPreview.Controls
 
         private void OnImageResourcesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
+            // Handle new items
+            if (e.NewItems != null)
+            {
+                foreach (ImageResource item in e.NewItems)
+                {
+                    item.PropertyChanged += OnAnyImageResourcePropertyChanged;
+                }
+            }
+
+            // Handle removed items
+            if (e.OldItems != null)
+            {
+                foreach (ImageResource item in e.OldItems)
+                {
+                    item.PropertyChanged -= OnAnyImageResourcePropertyChanged;
+                }
+            }
+
             UpdateCanvas();
+        }
+
+        private void OnAnyImageResourcePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // Handle visibility changes for all images (visible and invisible)
+            if (e.PropertyName == nameof(ImageResource.IsVisible))
+            {
+                UpdateCanvas();
+            }
         }
 
         private void UpdateCanvas()
         {
             if (_viewModel == null) return;
 
+            // Clean up existing event handlers to prevent memory leaks
+            CleanupExistingHandlers();
             MainCanvas.Children.Clear();
 
             var sortedImages = _viewModel.ImageResources
@@ -104,46 +142,80 @@ namespace MiniScreenPreview.Controls
 
                 MainCanvas.Children.Add(grid);
 
-                imageResource.PropertyChanged += (s, args) =>
-                {
-                    if (args.PropertyName == nameof(ImageResource.X))
-                    {
-                        Canvas.SetLeft(grid, imageResource.X);
-                    }
-                    else if (args.PropertyName == nameof(ImageResource.Y))
-                    {
-                        Canvas.SetTop(grid, imageResource.Y);
-                    }
-                    else if (args.PropertyName == nameof(ImageResource.Scale))
-                    {
-                        if (imageResource.ImageSource != null)
-                        {
-                            image.Width = imageResource.ImageSource.PixelWidth * imageResource.Scale;
-                            image.Height = imageResource.ImageSource.PixelHeight * imageResource.Scale;
-                        }
-                    }
-                    else if (args.PropertyName == nameof(ImageResource.Opacity))
-                    {
-                        image.Opacity = imageResource.Opacity;
-                    }
-                    else if (args.PropertyName == nameof(ImageResource.Rotation))
-                    {
-                        var transformGroup = new TransformGroup();
-                        transformGroup.Children.Add(new RotateTransform(imageResource.Rotation));
-                        image.RenderTransform = transformGroup;
-                    }
-                    else if (args.PropertyName == nameof(ImageResource.Layer))
-                    {
-                        Panel.SetZIndex(grid, imageResource.Layer);
-                    }
-                    else if (args.PropertyName == nameof(ImageResource.IsVisible))
-                    {
-                        UpdateCanvas();
-                    }
-                };
+                // Store and subscribe to property change handler
+                var handler = CreatePropertyChangedHandler(grid, image);
+                _propertyChangedHandlers[imageResource] = handler;
+                imageResource.PropertyChanged += handler;
             }
 
             UpdateSelectionBorder();
+        }
+
+        private void CleanupExistingHandlers()
+        {
+            // Clean up UI event handlers
+            foreach (UIElement element in MainCanvas.Children)
+            {
+                if (element is Grid grid)
+                {
+                    foreach (UIElement child in grid.Children)
+                    {
+                        if (child is Image image)
+                        {
+                            // Remove event handlers
+                            image.MouseLeftButtonDown -= OnImageMouseLeftButtonDown;
+                            image.MouseMove -= OnImageMouseMove;
+                            image.MouseLeftButtonUp -= OnImageMouseLeftButtonUp;
+                        }
+                    }
+                }
+            }
+
+            // Clean up PropertyChanged event handlers
+            foreach (var kvp in _propertyChangedHandlers)
+            {
+                kvp.Key.PropertyChanged -= kvp.Value;
+            }
+            _propertyChangedHandlers.Clear();
+        }
+
+        private PropertyChangedEventHandler CreatePropertyChangedHandler(Grid grid, Image image)
+        {
+            return (s, args) =>
+            {
+                if (s is not ImageResource imageResource) return;
+
+                if (args.PropertyName == nameof(ImageResource.X))
+                {
+                    Canvas.SetLeft(grid, imageResource.X);
+                }
+                else if (args.PropertyName == nameof(ImageResource.Y))
+                {
+                    Canvas.SetTop(grid, imageResource.Y);
+                }
+                else if (args.PropertyName == nameof(ImageResource.Scale))
+                {
+                    if (imageResource.ImageSource != null)
+                    {
+                        image.Width = imageResource.ImageSource.PixelWidth * imageResource.Scale;
+                        image.Height = imageResource.ImageSource.PixelHeight * imageResource.Scale;
+                    }
+                }
+                else if (args.PropertyName == nameof(ImageResource.Opacity))
+                {
+                    image.Opacity = imageResource.Opacity;
+                }
+                else if (args.PropertyName == nameof(ImageResource.Rotation))
+                {
+                    var transformGroup = new TransformGroup();
+                    transformGroup.Children.Add(new RotateTransform(imageResource.Rotation));
+                    image.RenderTransform = transformGroup;
+                }
+                else if (args.PropertyName == nameof(ImageResource.Layer))
+                {
+                    Panel.SetZIndex(grid, imageResource.Layer);
+                }
+            };
         }
 
         private void UpdateSelectionBorder()
