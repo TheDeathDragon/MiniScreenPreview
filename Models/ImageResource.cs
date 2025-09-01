@@ -160,6 +160,23 @@ namespace MiniScreenPreview.Models
             _isLocked = false;
         }
 
+        // Used during dragging to set position without rounding or lock checking
+        public void SetPositionWithoutRounding(double x, double y)
+        {
+            var oldX = _x;
+            var oldY = _y;
+            
+            _x = x;
+            _y = y;
+            
+            // Only trigger notification when coordinates actually change
+            if (Math.Abs(oldX - _x) > 0.01 || Math.Abs(oldY - _y) > 0.01)
+            {
+                OnPropertyChanged(nameof(X));
+                OnPropertyChanged(nameof(Y));
+            }
+        }
+
         private void LoadImage()
         {
             try

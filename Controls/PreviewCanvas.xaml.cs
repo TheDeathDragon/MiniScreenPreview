@@ -21,7 +21,7 @@ namespace MiniScreenPreview.Controls
         {
             InitializeComponent();
             Loaded += OnLoaded;
-            MouseWheel += OnPreviewMouseWheel;
+            PreviewMouseWheel += OnPreviewMouseWheel;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -128,7 +128,7 @@ namespace MiniScreenPreview.Controls
                 var selectionBorder = new Border
                 {
                     BorderThickness = new Thickness(0),
-                    IsHitTestVisible = false, // 不参与鼠标事件
+                    IsHitTestVisible = false, // Does not participate in mouse events
                     Name = "SelectionBorder"
                 };
                 grid.Children.Add(selectionBorder);
@@ -284,11 +284,12 @@ namespace MiniScreenPreview.Controls
                 var deltaX = currentPosition.X - _lastPosition.X;
                 var deltaY = currentPosition.Y - _lastPosition.Y;
 
+                // Maintain floating point precision during dragging, no rounding
                 var newX = imageResource.X + deltaX;
                 var newY = imageResource.Y + deltaY;
 
-                imageResource.X = newX;
-                imageResource.Y = newY;
+                // Temporarily set position without rounding to avoid snapping during drag
+                imageResource.SetPositionWithoutRounding(newX, newY);
 
                 _lastPosition = currentPosition;
                 e.Handled = true;
@@ -299,6 +300,13 @@ namespace MiniScreenPreview.Controls
         {
             if (_isDragging && _draggedImage != null)
             {
+                // Round coordinates to integers when dragging ends
+                if (_draggedImage.Tag is ImageResource imageResource)
+                {
+                    imageResource.X = Math.Round(imageResource.X);
+                    imageResource.Y = Math.Round(imageResource.Y);
+                }
+
                 _isDragging = false;
                 _draggedImage.ReleaseMouseCapture();
                 _draggedImage = null;
@@ -310,7 +318,7 @@ namespace MiniScreenPreview.Controls
         {
             if (_viewModel == null) return;
 
-            // 如果按住Ctrl键，则调整缩放级别
+            // If Ctrl key is held, adjust zoom level
             if (Keyboard.Modifiers == ModifierKeys.Control)
             {
                 var zoomDelta = e.Delta > 0 ? 0.1 : -0.1;
@@ -319,8 +327,8 @@ namespace MiniScreenPreview.Controls
             }
             else
             {
-                // 否则让ScrollViewer处理滚动
-                // 不设置e.Handled = true，让事件继续冒泡到ScrollViewer
+                // Otherwise let ScrollViewer handle scrolling
+                // Don't set e.Handled = true, let event bubble to ScrollViewer
             }
         }
 

@@ -336,7 +336,7 @@ namespace MiniScreenPreview.ViewModels
                     item.PropertyChanged -= OnImageResourcePropertyChanged;
                 }
                 
-                // 当移除图像时，调整其他图像的Layer索引
+                // Adjust Layer indices of other images when removing an image
                 if (e.Action == NotifyCollectionChangedAction.Remove)
                 {
                     ReorganizeLayers();
@@ -350,7 +350,7 @@ namespace MiniScreenPreview.ViewModels
                     item.PropertyChanged += OnImageResourcePropertyChanged;
                 }
                 
-                // 当添加图像时，设置正确的Layer值
+                // Set correct Layer value when adding an image
                 if (e.Action == NotifyCollectionChangedAction.Add)
                 {
                     foreach (ImageResource newItem in e.NewItems)
@@ -365,19 +365,19 @@ namespace MiniScreenPreview.ViewModels
 
         private void ReorganizeLayers()
         {
-            // 暂停事件监听，避免递归触发
+            // Pause event listening to avoid recursive triggering
             foreach (var image in ImageResources)
             {
                 image.PropertyChanged -= OnImageResourcePropertyChanged;
             }
 
-            // 重新组织Layer索引，确保连续性（0, 1, 2, 3...）
+            // Reorganize Layer indices to ensure continuity (0, 1, 2, 3...)
             for (int i = 0; i < ImageResources.Count; i++)
             {
                 ImageResources[i].Layer = i;
             }
 
-            // 恢复事件监听
+            // Resume event listening
             foreach (var image in ImageResources)
             {
                 image.PropertyChanged += OnImageResourcePropertyChanged;
@@ -398,41 +398,41 @@ namespace MiniScreenPreview.ViewModels
             var targetLayer = changedImage.Layer;
             var maxLayer = ImageResources.Count - 1;
 
-            // 如果超出最大Layer范围，设为最大值
+            // If exceeds maximum Layer range, set to maximum value
             if (targetLayer > maxLayer)
             {
                 changedImage.Layer = maxLayer;
                 return;
             }
 
-            // 如果小于0，设为0
+            // If less than 0, set to 0
             if (targetLayer < 0)
             {
                 changedImage.Layer = 0;
                 return;
             }
 
-            // 查找是否有其他图像使用相同的Layer
+            // Check if any other image uses the same Layer
             var conflictImage = ImageResources.FirstOrDefault(img => img != changedImage && img.Layer == targetLayer);
             
             if (conflictImage != null)
             {
-                // 找到冲突的图像，需要交换Layer
-                // 暂时取消事件监听，避免递归
+                // Found conflicting image, need to swap Layer
+                // Temporarily disable event listening to avoid recursion
                 conflictImage.PropertyChanged -= OnImageResourcePropertyChanged;
                 
-                // 交换Layer值
+                // Swap Layer values
                 var oldLayer = conflictImage.Layer;
                 conflictImage.Layer = GetOriginalLayer(changedImage);
                 
-                // 恢复事件监听
+                // Resume event listening
                 conflictImage.PropertyChanged += OnImageResourcePropertyChanged;
             }
         }
 
         private int GetOriginalLayer(ImageResource changedImage)
         {
-            // 从所有图像中找到一个未使用的Layer值
+            // Find an unused Layer value from all images
             var usedLayers = ImageResources.Where(img => img != changedImage).Select(img => img.Layer).ToHashSet();
             
             for (int i = 0; i < ImageResources.Count; i++)
@@ -443,7 +443,7 @@ namespace MiniScreenPreview.ViewModels
                 }
             }
             
-            // 如果所有Layer都被使用，返回最大值
+            // If all Layers are used, return maximum value
             return ImageResources.Count - 1;
         }
 

@@ -66,7 +66,7 @@ namespace MiniScreenPreview
                 await LoadProject(lastOpenedPath);
             }
             
-            // 订阅ImageResources集合变更和Layer属性变更
+            // Subscribe to ImageResources collection changes and Layer property changes
             _viewModel.ImageResources.CollectionChanged += OnImageResourcesCollectionChanged;
             foreach (var image in _viewModel.ImageResources)
             {
@@ -76,7 +76,7 @@ namespace MiniScreenPreview
 
         private void OnImageResourcesCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            // 当添加新图像时，订阅其Layer属性变更
+            // When adding new images, subscribe to their Layer property changes
             if (e.NewItems != null)
             {
                 foreach (ImageResource newImage in e.NewItems)
@@ -85,7 +85,7 @@ namespace MiniScreenPreview
                 }
             }
 
-            // 当移除图像时，取消订阅
+            // When removing images, unsubscribe
             if (e.OldItems != null)
             {
                 foreach (ImageResource oldImage in e.OldItems)
@@ -99,7 +99,7 @@ namespace MiniScreenPreview
 
         private void OnImagePropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            // 当Layer属性变更时，刷新排序视图
+            // When Layer property changes, refresh sorted view
             if (e.PropertyName == nameof(ImageResource.Layer))
             {
                 RefreshSortedView();
