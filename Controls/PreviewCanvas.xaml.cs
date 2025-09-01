@@ -106,7 +106,8 @@ namespace MiniScreenPreview.Controls
                     Height = imageResource.ImageSource?.PixelHeight * imageResource.Scale ?? 100,
                     Opacity = imageResource.Opacity,
                     Tag = imageResource,
-                    Cursor = Cursors.Hand,
+                    Cursor = imageResource.IsLocked ? Cursors.No : Cursors.Hand,
+                    IsHitTestVisible = !imageResource.IsLocked,
                     RenderTransformOrigin = new Point(0.5, 0.5)
                 };
 
@@ -214,6 +215,11 @@ namespace MiniScreenPreview.Controls
                 else if (args.PropertyName == nameof(ImageResource.Layer))
                 {
                     Panel.SetZIndex(grid, imageResource.Layer);
+                }
+                else if (args.PropertyName == nameof(ImageResource.IsLocked))
+                {
+                    image.Cursor = imageResource.IsLocked ? Cursors.No : Cursors.Hand;
+                    image.IsHitTestVisible = !imageResource.IsLocked;
                 }
             };
         }

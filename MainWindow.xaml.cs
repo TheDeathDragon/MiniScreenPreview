@@ -282,6 +282,14 @@ namespace MiniScreenPreview
             }
         }
 
+        private void ToggleLock_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is ImageResource imageResource)
+            {
+                imageResource.IsLocked = !imageResource.IsLocked;
+            }
+        }
+
         #endregion
 
         #region Drag and Drop
@@ -419,6 +427,9 @@ namespace MiniScreenPreview
         public static IValueConverter IsNotNull { get; } = new IsNotNullConverter();
         public static IValueConverter StringEquality { get; } = new StringEqualityConverter();
         public static IValueConverter Inverted { get; } = new InvertedBooleanConverter();
+        public static IValueConverter LockTooltip { get; } = new LockTooltipConverter();
+        public static IValueConverter IsNotLocked { get; } = new IsNotLockedConverter();
+        public static IValueConverter BooleanToVisibility { get; } = new BooleanToVisibilityConverter();
     }
 
     public class IsNotNullConverter : IValueConverter
@@ -469,6 +480,57 @@ namespace MiniScreenPreview
                 return !boolValue;
             }
             return false;
+        }
+    }
+
+    public class LockTooltipConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool isLocked)
+            {
+                return isLocked ? "Click to unlock layer" : "Click to lock layer";
+            }
+            return "Click to toggle lock";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IsNotLockedConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is ImageResource imageResource)
+            {
+                return !imageResource.IsLocked;
+            }
+            return true;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class BooleanToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolValue)
+            {
+                return boolValue ? Visibility.Visible : Visibility.Collapsed;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

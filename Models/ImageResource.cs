@@ -17,6 +17,7 @@ namespace MiniScreenPreview.Models
         private double _opacity;
         private double _rotation;
         private BitmapImage? _imageSource;
+        private bool _isLocked;
 
         public string Name
         {
@@ -44,8 +45,11 @@ namespace MiniScreenPreview.Models
             get => _x;
             set
             {
-                _x = value;
-                OnPropertyChanged();
+                if (!_isLocked)
+                {
+                    _x = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -54,8 +58,11 @@ namespace MiniScreenPreview.Models
             get => _y;
             set
             {
-                _y = value;
-                OnPropertyChanged();
+                if (!_isLocked)
+                {
+                    _y = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -64,8 +71,11 @@ namespace MiniScreenPreview.Models
             get => _scale;
             set
             {
-                _scale = Math.Max(0.1, Math.Min(5.0, value));
-                OnPropertyChanged();
+                if (!_isLocked)
+                {
+                    _scale = Math.Max(0.1, Math.Min(5.0, value));
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -94,8 +104,11 @@ namespace MiniScreenPreview.Models
             get => _opacity;
             set
             {
-                _opacity = Math.Max(0.0, Math.Min(1.0, value));
-                OnPropertyChanged();
+                if (!_isLocked)
+                {
+                    _opacity = Math.Max(0.0, Math.Min(1.0, value));
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -104,9 +117,12 @@ namespace MiniScreenPreview.Models
             get => _rotation;
             set
             {
-                _rotation = value % 360;
-                if (_rotation < 0) _rotation += 360;
-                OnPropertyChanged();
+                if (!_isLocked)
+                {
+                    _rotation = value % 360;
+                    if (_rotation < 0) _rotation += 360;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -116,6 +132,16 @@ namespace MiniScreenPreview.Models
             private set
             {
                 _imageSource = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsLocked
+        {
+            get => _isLocked;
+            set
+            {
+                _isLocked = value;
                 OnPropertyChanged();
             }
         }
@@ -131,6 +157,7 @@ namespace MiniScreenPreview.Models
             _isVisible = true;
             _opacity = 1.0;
             _rotation = 0.0;
+            _isLocked = false;
         }
 
         private void LoadImage()

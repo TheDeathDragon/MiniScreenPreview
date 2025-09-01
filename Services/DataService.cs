@@ -35,7 +35,8 @@ namespace MiniScreenPreview.Services
                         Rotation = img.Rotation,
                         Layer = img.Layer,
                         IsVisible = img.IsVisible,
-                        Opacity = img.Opacity
+                        Opacity = img.Opacity,
+                        IsLocked = img.IsLocked
                     }).ToList()
                 };
 
@@ -97,7 +98,8 @@ namespace MiniScreenPreview.Services
                         Rotation = imageData.Rotation,
                         Layer = imageData.Layer,
                         IsVisible = imageData.IsVisible,
-                        Opacity = imageData.Opacity
+                        Opacity = imageData.Opacity,
+                        IsLocked = imageData.IsLocked
                     };
                     viewModel.ImageResources.Add(imageResource);
                 }

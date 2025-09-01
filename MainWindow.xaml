@@ -192,13 +192,54 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 
                                 <CheckBox Grid.Column="0" IsChecked="{Binding IsVisible}" Margin="0,0,5,0"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Layer}" 
+                                <Button Grid.Column="1" Width="20" Height="20" Padding="0" Margin="0,0,5,0" 
+                                        Click="ToggleLock_Click" Tag="{Binding}"
+                                        ToolTip="{Binding IsLocked, Converter={x:Static local:BooleanConverter.LockTooltip}}">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="LightGray"/>
+                                            <Setter Property="BorderBrush" Value="Gray"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                                    <Setter Property="Background" Value="Orange"/>
+                                                    <Setter Property="BorderBrush" Value="DarkOrange"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="L" FontSize="11" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="DarkGray"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Button>
+                                <TextBlock Grid.Column="2" Text="{Binding Name}" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                                    <Setter Property="Foreground" Value="Gray"/>
+                                                    <Setter Property="FontStyle" Value="Italic"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Grid.Column="3" Text="{Binding Layer}" 
                                           Background="DarkBlue" Foreground="White" 
                                           Padding="4,2" FontSize="10" VerticalAlignment="Center"/>
                             </Grid>
@@ -274,6 +315,18 @@
                 <StackPanel Margin="12" IsEnabled="{Binding SelectedImageResource, Converter={x:Static local:BooleanConverter.IsNotNull}}">
                     <TextBlock Text="Properties" Style="{StaticResource PropertySectionStyle}" Margin="0,0,0,12"/>
 
+                    <!-- Lock Status Indicator -->
+                    <Border Background="LightYellow" BorderBrush="Orange" BorderThickness="1" CornerRadius="3" Padding="8,4" Margin="0,0,0,12"
+                            Visibility="{Binding SelectedImageResource.IsLocked, Converter={x:Static local:BooleanConverter.BooleanToVisibility}}">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="Orange" CornerRadius="2" Padding="3,1" Margin="0,0,5,0">
+                                <TextBlock Text="L" FontSize="10" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Layer is locked" 
+                                       FontSize="11" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
                     <TextBlock Text="Name:" Style="{StaticResource PropertyLabelStyle}" Margin="0,8,0,4"/>
                     <TextBox Text="{Binding SelectedImageResource.Name, UpdateSourceTrigger=PropertyChanged}" 
                              Style="{StaticResource PropertyTextBoxStyle}"/>
@@ -287,7 +340,8 @@
                     </StackPanel>
 
                     <TextBlock Text="Position X:" Style="{StaticResource PropertyLabelStyle}" Margin="0,12,0,4"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8" 
+                                IsEnabled="{Binding SelectedImageResource, Converter={x:Static local:BooleanConverter.IsNotLocked}}">
                         <controls:NumericTextBox Value="{Binding SelectedImageResource.X}" 
                                                 Step="1" Minimum="-360" Maximum="360"
                                                 Style="{StaticResource PropertyNumericTextBoxStyle}"
@@ -299,7 +353,8 @@
                     </StackPanel>
 
                     <TextBlock Text="Position Y:" Style="{StaticResource PropertyLabelStyle}" Margin="0,0,0,4"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8"
+                                IsEnabled="{Binding SelectedImageResource, Converter={x:Static local:BooleanConverter.IsNotLocked}}">
                         <controls:NumericTextBox Value="{Binding SelectedImageResource.Y}" 
                                                 Step="1" Minimum="-360" Maximum="360"
                                                 Style="{StaticResource PropertyNumericTextBoxStyle}"

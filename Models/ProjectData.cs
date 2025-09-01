@@ -27,5 +27,6 @@ namespace MiniScreenPreview.Models
         public int Layer { get; set; }
         public bool IsVisible { get; set; } = true;
         public double Opacity { get; set; } = 1.0;
+        public bool IsLocked { get; set; } = false;
     }
 }
