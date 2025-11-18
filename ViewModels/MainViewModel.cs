@@ -203,7 +203,7 @@ namespace MiniScreenPreview.ViewModels
         {
             var openFileDialog = new OpenFileDialog
             {
-                Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|All Files|*.*",
+                Filter = "Image Files|*.webp;*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff|All Files|*.*",
                 Multiselect = true
             };
 

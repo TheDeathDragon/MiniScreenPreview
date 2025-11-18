@@ -357,7 +357,7 @@ namespace MiniScreenPreview
         private bool IsImageFile(string filePath)
         {
             var extension = Path.GetExtension(filePath).ToLower();
-            return extension == ".png" || extension == ".jpg" || extension == ".jpeg" || 
+            return extension == ".webp" || extension == ".png" || extension == ".jpg" || extension == ".jpeg" ||
                    extension == ".bmp" || extension == ".gif" || extension == ".tiff";
         }
 
