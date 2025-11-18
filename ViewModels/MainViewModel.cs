@@ -187,6 +187,7 @@ namespace MiniScreenPreview.ViewModels
             _sizePresets = new ObservableCollection<SizePreset>
             {
                 new SizePreset("240x240", 240, 240),
+                new SizePreset("240x284", 240, 280),
                 new SizePreset("240x284", 240, 284),
                 new SizePreset("360x360", 360, 360)
             };
