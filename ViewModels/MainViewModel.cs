@@ -23,6 +23,7 @@ namespace MiniScreenPreview.ViewModels
         private ICommand? _removeImageCommand;
         private ObservableCollection<SizePreset> _sizePresets;
         private SizePreset? _selectedSizePreset;
+        private string _customSizeText = "Custom";
         private string? _currentProjectPath;
         private bool _hasUnsavedChanges;
         private string? _originalStateHash;
@@ -111,7 +112,51 @@ namespace MiniScreenPreview.ViewModels
             {
                 _selectedSizePreset = value;
                 OnPropertyChanged();
+                _customSizeText = value != null ? value.Name : "Custom";
+                OnPropertyChanged(nameof(CustomSizeText));
                 ApplySizePreset();
+            }
+        }
+
+        public string CustomSizeText
+        {
+            get => _customSizeText;
+            set
+            {
+                _customSizeText = value;
+                OnPropertyChanged();
+                ParseAndApplyCustomSize(value);
+            }
+        }
+
+        private void ParseAndApplyCustomSize(string sizeText)
+        {
+            if (string.IsNullOrWhiteSpace(sizeText)) return;
+            
+            var parts = sizeText.Split('x', 'X');
+            if (parts.Length == 2 && 
+                double.TryParse(parts[0].Trim(), out var width) && 
+                double.TryParse(parts[1].Trim(), out var height))
+            {
+                if (width >= 100 && height >= 100)
+                {
+                    var matchingPreset = _sizePresets?.FirstOrDefault(p =>
+                        Math.Abs(p.Width - width) < 0.1 &&
+                        Math.Abs(p.Height - height) < 0.1);
+
+                    if (matchingPreset == null)
+                    {
+                        _previewWidth = width;
+                        _previewHeight = height;
+                        _selectedSizePreset = null;
+                        _customSizeText = "Custom";
+                        OnPropertyChanged(nameof(PreviewWidth));
+                        OnPropertyChanged(nameof(PreviewHeight));
+                        OnPropertyChanged(nameof(SelectedSizePreset));
+                        OnPropertyChanged(nameof(CustomSizeText));
+                        CheckForUnsavedChanges();
+                    }
+                }
             }
         }
 
@@ -304,6 +349,9 @@ namespace MiniScreenPreview.ViewModels
                 _selectedSizePreset = matchingPreset;
                 OnPropertyChanged(nameof(SelectedSizePreset));
             }
+
+            _customSizeText = matchingPreset != null ? matchingPreset.Name : "Custom";
+            OnPropertyChanged(nameof(CustomSizeText));
         }
 
         public void NewProject()
